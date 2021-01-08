@@ -1,0 +1,85 @@
+#!/bin/bash
+
+sonar-uninstall-plugins-xml-java-javascript() {
+
+ sonar-uninstall-plugins \
+ "sonar-xml" \
+ "sonar-java" \
+ "sonar-javascript" 
+
+}
+
+sonar-uninstall-plugins() { { local candidate_plugins ; candidate_plugins=${@} ; }
+ 
+ ( 
+
+  cd extensions/plugins 
+  local plugin
+  for plugin in ${candidate_plugins}
+  do
+   rm -rvf ${plugin}*
+  done
+
+ )
+
+}
+
+sonar-install-plugins-go-python-scala() {
+ sonar-install-plugins "https://github.com/galexandre/sonar-cobertura/releases/download/2.0/sonar-cobertura-plugin-2.0.jar"
+ #sonar-install-plugins "https://repo1.maven.org/maven2/org/sonarsource/python/sonar-python-plugin/3.1.0.7619/sonar-python-plugin-3.1.0.7619.jar" "https://repo1.maven.org/maven2/org/sonarsource/slang/sonar-scala-plugin/1.7.0.883/sonar-scala-plugin-1.7.0.883.jar"
+ #echo "--------------------No plugins to install-------------------------"
+}
+sonar-install-plugins() { { local candidate_plugin_urls ; candidate_plugin_urls=${@} ; }
+ # Install plugins
+ (
+  cd extensions/plugins 
+  local url
+  for url in ${candidate_plugin_urls}
+  do
+   test -f "$( basename ${url} )" || {
+    wget ${url}
+   }
+  done
+ )
+}
+
+sonar-properties-increase-heap-size() {
+ sed -i -e 's/#sonar.web.javaOpts.*/sonar.web.javaOpts=-Xmx3062m -Xms128m -XX:+HeapDumpOnOutOfMemoryError/' conf/sonar.properties
+}
+
+sonar-start() {
+ ## for apt-get installed sonar
+ #bin/linux-x86-64/sonar.sh \
+ #	start
+ #tail -f opt/sonarqube/logs/sonar.log
+ bin/run.sh
+}
+
+sonar-list() {
+ #sonar-uninstall-plugins-xml-java-javascript
+ sonar-install-plugins-go-python-scala
+ sonar-properties-increase-heap-size
+ sonar-start
+ #sleep 10
+ #curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_cluster/settings -d '{ "transient": { "cluster.routing.allocation.disk.threshold_enabled": false } }'
+ #curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
+
+#curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_cluster/settings -d '{ "transient": { "cluster.routing.allocation.disk.threshold_enabled": false } }'
+#curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
+
+
+}
+
+
+sysctl -w vm.max_map_count=524288
+sysctl -w fs.file-max=131072
+ulimit -n 131072
+ulimit -u 8192
+
+
+sonar-list
+
+
+
+
+

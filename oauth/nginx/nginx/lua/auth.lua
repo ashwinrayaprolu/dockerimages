@@ -50,3 +50,9 @@ ngx.req.set_header("OIDC-NAME", res.id_token.name)
 ngx.req.set_header("OIDC-PREFERED_USERNAME", res.id_token.preferred_username) 
 
 
+
+ngx.var.user_id = res.id_token.sub
+ngx.var.user_name = res.id_token.name
+ngx.var.user_email = res.id_token.email
+ngx.var.user_prefered_name = res.id_token.preferred_username
+
