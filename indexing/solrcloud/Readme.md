@@ -33,3 +33,10 @@ docker exec -it --user=solr solr1 bin/post -c gettingstarted example/exampledocs
 ```
 docker exec -it --user=solr solr1 bin/solr create_collection -c dih
 ```
+
+
+## Accessing Solr
+
+* [Solr1]  (http://localhost:8981)
+* [Solr2]  (http://localhost:8982)
+* [Solr3]  (http://localhost:8983)
